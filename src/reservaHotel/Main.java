@@ -11,6 +11,12 @@ public class Main {
     public static void main(String[] args) {
         Map<String, String> quartos = new HashMap<>();
         List<String> historicoReservas = new ArrayList<>();
+        
+        menuHotel(quartos, historicoReservas);
+    }
+    
+    public static void menuHotel(Map<String, String> quartos, List<String> historicoReservas) {
+    	
         inicializarQuartos(quartos);
 
         String[] options = {"Reservar Quarto", "Realizar Check-out", "Listar Quartos Vagos", "Listar Quartos Ocupados", "Mostrar Histórico de Reservas", "Sair"};
@@ -43,8 +49,9 @@ public class Main {
                     JOptionPane.showMessageDialog(null, "Por favor, selecione uma opção válida.");
             }
         }
+    	
     }
-
+    
     public static void inicializarQuartos(Map<String, String> quartos) {
         String[] codigos = {"S101", "S102", "S103", "S201", "S202", "S203", "S204", "S301", "S302", "S303", "S304"};
         for (String codigo : codigos) {
