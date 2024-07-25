@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Main {
+
     public static void main(String[] args) {
         Map<String, String> quartos = new HashMap<>();
         List<String> historicoReservas = new ArrayList<>();
@@ -35,6 +36,7 @@ public class Main {
                     mostrarHistoricoReservas(historicoReservas);
                     break;
                 case 5:
+                    System.out.println("Saindo...");
                     System.exit(0);
                     break;
                 default:
@@ -43,38 +45,41 @@ public class Main {
         }
     }
 
-    private static void inicializarQuartos(Map<String, String> quartos) {
-        String[] codigos = {"S101", "S102", "S103", "S204", "S201", "S202", "S203", "S204",
-                            "S301", "S302", "S303", "S304", "S301", "S302", "S303", "S304"};
+    public static void inicializarQuartos(Map<String, String> quartos) {
+        String[] codigos = {"S101", "S102", "S103", "S201", "S202", "S203", "S204", "S301", "S302", "S303", "S304"};
         for (String codigo : codigos) {
             quartos.put(codigo, null);
         }
     }
 
-    private static void reservarQuarto(Map<String, String> quartos, List<String> historicoReservas) {
-        String nome = JOptionPane.showInputDialog("Nome:");
-        String cpf = JOptionPane.showInputDialog("CPF:");
-        String[] paymentOptions = {"Crédito", "Débito"};
-        int choicePagamento = JOptionPane.showOptionDialog(null, "Escolha uma forma de pagamento:", "Forma de pagamento:", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, paymentOptions, paymentOptions[0]);                 
-        String formaPagamento;
-        switch (choicePagamento) {
-            case 0:                         
-                formaPagamento = "Crédito";                   
-                break;
-            case 1:                       
-                formaPagamento = "Débito";                        
-                break;
-            default:
-                formaPagamento = "Nenhuma forma de pagamento selecionada";
-                break;
+    public static void reservarQuarto(Map<String, String> quartos, List<String> historicoReservas) {
+        String quartosLivres = listarQuartosVagos(quartos);
+        if (quartosLivres.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Não há quartos vagos disponíveis.");
+            return;
+        }
+        
+        String[] quartosVagosArray = quartosLivres.split("\n");
+
+        int escolhaQuarto = JOptionPane.showOptionDialog(null, "Escolha um quarto", "Quartos Disponíveis",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, quartosVagosArray, quartosVagosArray[0]);
+
+        if (escolhaQuarto == JOptionPane.CLOSED_OPTION) {
+            return;
         }
 
-        int quantidadeDias = Integer.parseInt(JOptionPane.showInputDialog("Quantidade de Dias:"));
-        String telefone = JOptionPane.showInputDialog("Telefone:");
-        String email = JOptionPane.showInputDialog("Email:");
-        String codigoQuarto = JOptionPane.showInputDialog("Código do Quarto:");
-        
+        String codigoQuarto = quartosVagosArray[escolhaQuarto].replace("Quarto ", "").trim();
+
         if (quartos.containsKey(codigoQuarto) && quartos.get(codigoQuarto) == null) {
+            String nome = JOptionPane.showInputDialog("Nome:");
+            String cpf = JOptionPane.showInputDialog("CPF:");
+            String[] paymentOptions = {"Crédito", "Débito"};
+            int choicePagamento = JOptionPane.showOptionDialog(null, "Escolha uma forma de pagamento:", "Forma de pagamento:", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, paymentOptions, paymentOptions[0]);
+            String formaPagamento = choicePagamento == 0 ? "Crédito" : "Débito";
+            int quantidadeDias = Integer.parseInt(JOptionPane.showInputDialog("Quantidade de Dias:"));
+            String telefone = JOptionPane.showInputDialog("Telefone:");
+            String email = JOptionPane.showInputDialog("Email:");
+
             quartos.put(codigoQuarto, nome);
             historicoReservas.add("Check-in - Quarto: " + codigoQuarto + ", Nome: " + nome + ", CPF: " + cpf + ", Forma de Pagamento: " + formaPagamento + ", Dias: " + quantidadeDias + ", Telefone: " + telefone + ", Email: " + email);
             JOptionPane.showMessageDialog(null, "Check-in realizado com sucesso!");
@@ -83,38 +88,57 @@ public class Main {
         }
     }
 
-    private static void realizarCheckOut(Map<String, String> quartos, List<String> historicoReservas) {
-        String codigoQuarto = JOptionPane.showInputDialog("Código do Quarto para Check-out:");
-        if (quartos.containsKey(codigoQuarto) && quartos.get(codigoQuarto) != null) {
-            historicoReservas.add("Check-out - Quarto: " + codigoQuarto + ", Nome: " + quartos.get(codigoQuarto));
-            quartos.put(codigoQuarto, null);
-            JOptionPane.showMessageDialog(null, "Check-out realizado com sucesso!");
-        } else {
-            JOptionPane.showMessageDialog(null, "Quarto " + codigoQuarto + " já está vazio.");
-        }
-    }
-
-    private static void listarQuartosVagos(Map<String, String> quartos) {
-        StringBuilder sb = new StringBuilder("Quartos vagos:\n");
+    public static String listarQuartosVagos(Map<String, String> quartos) {
+        StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> entry : quartos.entrySet()) {
             if (entry.getValue() == null) {
                 sb.append("Quarto ").append(entry.getKey()).append("\n");
             }
         }
-        JOptionPane.showMessageDialog(null, sb.toString());
+        return sb.toString().trim();
     }
 
-    private static void listarQuartosOcupados(Map<String, String> quartos) {
-        StringBuilder sb = new StringBuilder("Quartos ocupados:\n");
+    public static String listarQuartosOcupados(Map<String, String> quartos) {
+    	StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> entry : quartos.entrySet()) {
             if (entry.getValue() != null) {
                 sb.append("Quarto ").append(entry.getKey()).append(" ocupado por ").append(entry.getValue()).append("\n");
             }
         }
-        JOptionPane.showMessageDialog(null, sb.toString());
+        String result = sb.toString().trim();
+        JOptionPane.showMessageDialog(null, result.isEmpty() ? "Não há quartos ocupados." : result);
+        return result;
     }
+    
+    public static void realizarCheckOut(Map<String, String> quartos, List<String> historicoReservas) {
+    	
+    	 String quartosOcupados = listarQuartosOcupados(quartos);
+         if (quartosOcupados.isEmpty()) {
+              JOptionPane.showMessageDialog(null, "Não há quartos ocupados.");
+              return;
+          }
 
-    private static void mostrarHistoricoReservas(List<String> historicoReservas) {
+          String[] quartosOcupadosArray = quartosOcupados.split("\n");
+
+          int escolhaQuarto = JOptionPane.showOptionDialog(null, "Escolha um quarto para check-out", "Quartos Ocupados",
+              JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, quartosOcupadosArray, quartosOcupadosArray[0]);
+
+          if (escolhaQuarto == JOptionPane.CLOSED_OPTION) {
+              return;
+          }
+
+          String codigoQuarto = quartosOcupadosArray[escolhaQuarto].replace("Quarto ", "").split(" ")[0];
+
+          if (quartos.containsKey(codigoQuarto) && quartos.get(codigoQuarto) != null) {
+              historicoReservas.add("Check-out - Quarto: " + codigoQuarto + ", Nome: " + quartos.get(codigoQuarto));
+              quartos.put(codigoQuarto, null);
+              JOptionPane.showMessageDialog(null, "Check-out realizado com sucesso!");
+          } else {
+              JOptionPane.showMessageDialog(null, "Quarto " + codigoQuarto + " já está vazio ou inexistente.");
+          }
+    }
+    
+    public static void mostrarHistoricoReservas(List<String> historicoReservas) {
         StringBuilder sb = new StringBuilder("Histórico de Reservas:\n");
         for (String registro : historicoReservas) {
             sb.append(registro).append("\n");
