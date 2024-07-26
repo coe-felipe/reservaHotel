@@ -27,18 +27,23 @@ public class Main {
 
             switch (choice) {
                 case 0:
+                	System.out.println("Realizando CheckIn");
                     reservarQuarto(quartos, historicoReservas);
                     break;
                 case 1:
+                	System.out.println("Realizando CheckOut");
                     realizarCheckOut(quartos, historicoReservas);
                     break;
                 case 2:
+                	System.out.println("Listando quartos vagos.");
                     listarQuartosVagos(quartos);
                     break;
                 case 3:
+                	System.out.println("Listando quartos ocupados.");
                     listarQuartosOcupados(quartos);
                     break;
                 case 4:
+                	System.out.println("Historico de reservas.");
                     mostrarHistoricoReservas(historicoReservas);
                     break;
                 case 5:
@@ -76,16 +81,23 @@ public class Main {
         }
 
         String codigoQuarto = quartosVagosArray[escolhaQuarto].replace("Quarto ", "").trim();
+        System.out.println(codigoQuarto);
 
         if (quartos.containsKey(codigoQuarto) && quartos.get(codigoQuarto) == null) {
             String nome = JOptionPane.showInputDialog("Nome:");
+            System.out.println(nome);
             String cpf = JOptionPane.showInputDialog("CPF:");
+            System.out.println(cpf);
             String[] paymentOptions = {"Crédito", "Débito"};
             int choicePagamento = JOptionPane.showOptionDialog(null, "Escolha uma forma de pagamento:", "Forma de pagamento:", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, paymentOptions, paymentOptions[0]);
             String formaPagamento = choicePagamento == 0 ? "Crédito" : "Débito";
+            System.out.println(formaPagamento);
             int quantidadeDias = Integer.parseInt(JOptionPane.showInputDialog("Quantidade de Dias:"));
+            System.out.println(quantidadeDias);
             String telefone = JOptionPane.showInputDialog("Telefone:");
+            System.out.println(telefone);
             String email = JOptionPane.showInputDialog("Email:");
+            System.out.println(email);
 
             quartos.put(codigoQuarto, nome);
             historicoReservas.add("Check-in - Quarto: " + codigoQuarto + ", Nome: " + nome + ", CPF: " + cpf + ", Forma de Pagamento: " + formaPagamento + ", Dias: " + quantidadeDias + ", Telefone: " + telefone + ", Email: " + email);
@@ -99,11 +111,15 @@ public class Main {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> entry : quartos.entrySet()) {
             if (entry.getValue() == null) {
-                sb.append("Quarto ").append(entry.getKey()).append("\n");
+                sb.append("Quarto ").append(entry.getKey()).append(" está vago.\n");
             }
         }
-        return sb.toString().trim();
+
+        String result = sb.toString().trim();
+        JOptionPane.showMessageDialog(null, result.isEmpty() ? "Não há quartos vagos." : result);
+        return result;
     }
+
 
     public static String listarQuartosOcupados(Map<String, String> quartos) {
     	StringBuilder sb = new StringBuilder();
@@ -146,10 +162,12 @@ public class Main {
     }
     
     public static void mostrarHistoricoReservas(List<String> historicoReservas) {
-        StringBuilder sb = new StringBuilder("Histórico de Reservas:\n");
+    	
+        StringBuilder sb = new StringBuilder("Histórico de Reservas:\n");    
         for (String registro : historicoReservas) {
             sb.append(registro).append("\n");
         }
+        
         JOptionPane.showMessageDialog(null, sb.toString());
     }
 }
