@@ -1,17 +1,21 @@
 package reservaHotel;
 
 import javax.swing.*;
+
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Main {
 
     public static void main(String[] args) {
         Map<String, String> quartos = new HashMap<>();
         List<String> historicoReservas = new ArrayList<>();
-        
+        LocalDate dataAtual = LocalDate.now();
         menuHotel(quartos, historicoReservas);
     }
     
@@ -22,7 +26,7 @@ public class Main {
         String[] options = {"Reservar Quarto", "Realizar Check-out", "Listar Quartos Vagos", "Listar Quartos Ocupados", "Mostrar Histórico de Reservas", "Sair"};
 
         while (true) {
-            int choice = JOptionPane.showOptionDialog(null, "Escolha uma opção", "Sistema de Reservas de Hotel",
+            int choice = JOptionPane.showOptionDialog(null, "Escolha uma opção", "Sistema de Reservas de Granville",
                     JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
 
             switch (choice) {
@@ -66,13 +70,10 @@ public class Main {
 
     public static void reservarQuarto(Map<String, String> quartos, List<String> historicoReservas) {
         String quartosLivres = listarQuartosVagos(quartos);
-        if (quartosLivres.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Não há quartos vagos disponíveis.");
-            return;
-        }
-        
+        LocalDate dataAtual = LocalDate.now();
         String[] quartosVagosArray = quartosLivres.split("\n");
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        
         int escolhaQuarto = JOptionPane.showOptionDialog(null, "Escolha um quarto", "Quartos Disponíveis",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, quartosVagosArray, quartosVagosArray[0]);
 
@@ -82,36 +83,41 @@ public class Main {
 
         String codigoQuarto = quartosVagosArray[escolhaQuarto].replace("Quarto ", "").trim();
         System.out.println(codigoQuarto);
-
-        if (quartos.containsKey(codigoQuarto) && quartos.get(codigoQuarto) == null) {
-            String nome = JOptionPane.showInputDialog("Nome:");
-            System.out.println(nome);
-            String cpf = JOptionPane.showInputDialog("CPF:");
-            System.out.println(cpf);
-            String[] paymentOptions = {"Crédito", "Débito"};
+        
+        String dataEntrada = JOptionPane.showInputDialog("Data: (Formato: DD-MM-AAAA)");
+        LocalDate data = LocalDate.parse(dataEntrada, formatter);
+        int quantidadeDias = Integer.parseInt(JOptionPane.showInputDialog("Quantidade de Dias:"));
+        LocalDate dataSaida = dataAtual.plusDays(quantidadeDias);
+        System.out.println(dataSaida);  
+        if(!data.isBefore(dataAtual)) {
+        	System.out.println(dataEntrada);
+        	 String nome = JOptionPane.showInputDialog("Nome:");
+             System.out.println(nome);
+             String cpf = JOptionPane.showInputDialog("CPF:");
+             System.out.println(cpf);
+        	String[] paymentOptions = {"Crédito", "Débito"};
             int choicePagamento = JOptionPane.showOptionDialog(null, "Escolha uma forma de pagamento:", "Forma de pagamento:", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, paymentOptions, paymentOptions[0]);
             String formaPagamento = choicePagamento == 0 ? "Crédito" : "Débito";
-            System.out.println(formaPagamento);
-            int quantidadeDias = Integer.parseInt(JOptionPane.showInputDialog("Quantidade de Dias:"));
-            System.out.println(quantidadeDias);
+            System.out.println(formaPagamento);            
             String telefone = JOptionPane.showInputDialog("Telefone:");
             System.out.println(telefone);
             String email = JOptionPane.showInputDialog("Email:");
             System.out.println(email);
 
             quartos.put(codigoQuarto, nome);
-            historicoReservas.add("Check-in - Quarto: " + codigoQuarto + ", Nome: " + nome + ", CPF: " + cpf + ", Forma de Pagamento: " + formaPagamento + ", Dias: " + quantidadeDias + ", Telefone: " + telefone + ", Email: " + email);
+            historicoReservas.add("Check-in - Quarto: " + codigoQuarto + ", Nome: " + nome + ", CPF: " + cpf + ", Data de Entrada: " + dataEntrada + ", Data de Saida: " + dataSaida + ", Forma de Pagamento: " + formaPagamento + ", Dias: " + quantidadeDias + ", Telefone: " + telefone + ", Email: " + email);
             JOptionPane.showMessageDialog(null, "Check-in realizado com sucesso!");
-        } else {
-            JOptionPane.showMessageDialog(null, "Quarto " + codigoQuarto + " não disponível.");
+        }else {
+        	JOptionPane.showMessageDialog(null,"Não e possivel fazer o checkIn nessa data.");
         }
+                  
     }
 
     public static String listarQuartosVagos(Map<String, String> quartos) {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> entry : quartos.entrySet()) {
             if (entry.getValue() == null) {
-                sb.append("Quarto ").append(entry.getKey()).append(" está vago.\n");
+                sb.append("Quarto ").append(entry.getKey()).append("\n");
             }
         }
 
