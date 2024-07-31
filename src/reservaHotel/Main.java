@@ -60,7 +60,7 @@ public static void reservarQuarto(String[] codigosQuartos, String[] nomesOcupant
 
     if (quartosLivres.isEmpty()) { // Verifica se há quartos vagos.
         JOptionPane.showMessageDialog(null, "Não há quartos vagos.");
-        return; // Retorna se não houver quartos disponíveis.
+        return; // Retorna ao menu se não houver quartos disponíveis.
     }
 
     // Busca a data atual.
