@@ -27,7 +27,7 @@ public static void menu(String[] codigosQuartos, String[] nomesOcupantes, String
 
     while (true) {
         // Cria um menu com botões para as opções.
-        int choice = JOptionPane.showOptionDialog(null, "Escolha uma opção", "Sistema de Reservas de Granville", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+        int choice = JOptionPane.showOptionDialog(null, "Escolha uma opção:", "Sistema de Reservas Granville", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
 
         // Ações baseadas na escolha do usuário.
         switch (choice) {
@@ -76,20 +76,35 @@ public static void reservarQuarto(String[] codigosQuartos, String[] nomesOcupant
     }
 
     String codigoQuarto = quartosVagosArray[escolhaQuarto].replace("Quarto ", "").trim(); // Extrai o código do quarto escolhido.
-    String dataEntrada = JOptionPane.showInputDialog("Data: (Formato: DD-MM-AAAA)"); // Pede a data de check-in ao usuário.
+    String dataEntrada = JOptionPane.showInputDialog("Data de Entrada: (Formato: DD-MM-AAAA)"); // Pede a data de check-in ao usuário.
     LocalDate data = LocalDate.parse(dataEntrada, formatter); // Converte a string de data para LocalDate.
 
     // Verifica se a data escolhida não é anterior à data atual.
-    if (dataAtual.isBefore(data)) {
-    	
+    if (dataAtual.isAfter(data)) {
+    	JOptionPane.showMessageDialog(null, "Não é possível fazer o check-in nessa data."); // Mensagem de erro se a data for inválida.
+    }else {
         // Dados do hóspede.
         String nome = JOptionPane.showInputDialog("Nome:");
-        String cpf = JOptionPane.showInputDialog("CPF:");
+        String cpf = JOptionPane.showInputDialog("CPF: (Formato: Sem pontos ou espaço.)");//Tira os espaços do CPF
+        //Formata o CPF.
+        String cpfFormatado = String.format("%s.%s.%s-%s",
+        		cpf.substring(0,3),
+        		cpf.substring(3,6),
+        		cpf.substring(6,9),
+        		cpf.substring(9));
+        
         String[] paymentOptions = {"Crédito", "Débito"};
 
         int choicePagamento = JOptionPane.showOptionDialog(null, "Escolha uma forma de pagamento:", "Forma de pagamento:", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, paymentOptions, paymentOptions[0]);
         String formaPagamento = paymentOptions[choicePagamento]; // Armazena a forma de pagamento escolhida.
-        String telefone = JOptionPane.showInputDialog("Telefone:");
+        String telefone = JOptionPane.showInputDialog("Telefone: (Formato: (77)998085632)");
+       
+            // Formata o número no padrão (XX) XXXX-XXXX
+            String telefoneFormatado = String.format("(%s) %s-%s",
+                    telefone.substring(0, 2), // Código de área
+                    telefone.substring(2, 7), // Primeiros 4 dígitos
+                    telefone.substring(7));   // Últimos 4 dígitos
+            
         String email = JOptionPane.showInputDialog("Email:");
 
         for (int i = 0; i < codigosQuartos.length; i++) { // Associa o nome do ocupante ao quarto escolhido.
@@ -101,14 +116,12 @@ public static void reservarQuarto(String[] codigosQuartos, String[] nomesOcupant
 
         // Monta a string do histórico de reservas.
         String reservaInfo = String.format("Check-in - Quarto: %s, Nome: %s, CPF: %s, Data de Entrada: %s, Forma de Pagamento: %s, Telefone: %s, Email: %s",
-                codigoQuarto, nome, cpf, data.format(formatter), formaPagamento, telefone, email);
+                codigoQuarto, nome, cpfFormatado, data.format(formatter), formaPagamento, telefoneFormatado, email);
         
         // Armazena a reserva no histórico.
         historicoReservas[historicoIndex[0]++] = reservaInfo; 
         JOptionPane.showMessageDialog(null, "Check-in realizado com sucesso!"); // Mensagem de sucesso.
-    } else {
-        JOptionPane.showMessageDialog(null, "Não é possível fazer o check-in nessa data."); // Mensagem de erro se a data for inválida.
-    }
+    } 
 }
 
 public static void mostrarHistoricoReservas(String[] historicoReservas, int[] historicoIndex) {
@@ -175,6 +188,7 @@ public static String listarQuartosOcupados(String[] codigosQuartos, String[] nom
 
 public static void realizarCheckOut(String[] codigosQuartos, String[] nomesOcupantes, String[] historicoReservas, int[] historicoIndex) {
     String quartosOcupados = listarQuartosOcupados(codigosQuartos, nomesOcupantes); // Chama a função listarQuartosOcupados.
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     LocalDate dataAtual = LocalDate.now();
     if (quartosOcupados.isEmpty()) { // Verifica se há quartos ocupados.
         JOptionPane.showMessageDialog(null, "Não há quartos ocupados."); // Mensagem se não houver quartos ocupados.
@@ -198,7 +212,7 @@ public static void realizarCheckOut(String[] codigosQuartos, String[] nomesOcupa
         if (codigosQuartos[i].equals(codigoQuarto)) {
             if (nomesOcupantes[i] != null) { // Verifica se o quarto está ocupado.
                 // Adiciona o check-out ao histórico de reservas.
-                historicoReservas[historicoIndex[0]++] = "Check-out - Quarto: " + codigoQuarto + ", Nome: " + nomesOcupantes[i] + " Data de Saida: " + dataAtual;
+                historicoReservas[historicoIndex[0]++] = "Check-out - Quarto: " + codigoQuarto + ", Nome: " + nomesOcupantes[i] + ", Data de Saida: " + dataAtual.format(formatter);
                 nomesOcupantes[i] = null; // Define nomesOcupantes do índice do quarto como nulo.
                 JOptionPane.showMessageDialog(null, "Check-out realizado com sucesso!"); // Mensagem de sucesso.
                 return;
